@@ -48,6 +48,9 @@ class ScrapResult(Base):
 
 
 def init(engine_url: str|None = None):
+    """
+    Inits sql connector and the db
+    """
     global engine, SessionFactory
 
     if engine_url is None:
@@ -58,8 +61,11 @@ def init(engine_url: str|None = None):
 
     metadata.create_all(engine)
 
-def connect():
-    if engine is None:
+def connect() -> SessionFactory:
+    """
+    Creates a new session with db
+    """
+    if SessionFactory is None:
         raise RuntimeError("Trying to access sql db prior to init")
 
     return SessionFactory()

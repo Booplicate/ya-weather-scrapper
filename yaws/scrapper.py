@@ -29,8 +29,9 @@ from selenium.webdriver.firefox.options import (
 
 
 T = TypeVar("T", int, float, str)
+V = TypeVar("V")
 
-def _cast_if_not_none(value: str|None, type_: type[T], fallback: Any = None) -> T|None:
+def _cast_if_not_none(value: str|None, type_: type[T], fallback: V|None = None) -> T|V|None:
     """
     Cast a value to a type if it's not None
     (supports ints, floats, strs)
@@ -409,7 +410,7 @@ class SeleniumScrapper():
     """
     Selenium weather scrapper
     """
-    def __init__(self, driver: FFDriver):
+    def __init__(self, driver: _DriverBase):
         self.driver = driver
 
     def start(self):

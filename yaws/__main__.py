@@ -5,6 +5,7 @@ Program entry point
 
 import argparse
 import os
+import sys
 import platform
 
 from . import (
@@ -23,7 +24,7 @@ def init():
     city_lookup.init()
     sql_backend.init()
 
-def main():
+def main() -> int:
     """
     Program entry point
     """
@@ -53,7 +54,7 @@ def main():
     if not city_data:
         print(f"Unknown city '{city_name}'")
         sql_backend.add_new_result_entry(city_name, False)
-        return
+        return 1
 
     elif len(city_data) > 1:
         print("Multiple cities found, select one")
@@ -84,10 +85,10 @@ def main():
         try:
             report = scrp.get_report_from_url(weather_url)
 
-        except:# Catch the most generic exc
-            # In case we crashed somehow, we mark it as a failure
+        except Exception as e:
+            print(f"Failed: {e}")
             sql_backend.add_new_result_entry(city_name, False)
-            raise
+            return 2
 
     print("Dumping...")
 
@@ -96,8 +97,10 @@ def main():
 
     except Exception as e:
         print(f"Failed to dump weather report: {e}")
+        rv = 3
 
     else:
+        rv = 0
         if platform.system() == "Windows":
             print("Done")
             os.startfile(file)
@@ -108,5 +111,8 @@ def main():
     # If we're here, we were able to fetch the weather
     sql_backend.add_new_result_entry(city_name, True)
 
+    return rv
+
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)

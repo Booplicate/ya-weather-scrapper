@@ -3,6 +3,6 @@ __pycache__
 *.pyc
 venv
 tmp
-drivers
+yaws/drivers
 logs
 yaws.db

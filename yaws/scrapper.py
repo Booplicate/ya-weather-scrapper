@@ -561,7 +561,9 @@ class SeleniumScrapper():
         return wr
 
     def _parse_weather_temp(self, temp: WebElement) -> int|None:
-        return _cast_if_not_none(temp.text, int)
+        # Replace unicode '-' with the proper '-'
+        rv = temp.text.replace("−", "-")
+        return _cast_if_not_none(rv, int)
 
     def _parse_weather_description(self, description: WebElement) -> str:
         return description.text

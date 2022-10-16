@@ -176,7 +176,7 @@ class _WeatherBlock():
         return self._uv_index
 
     @uv_index.setter
-    def uv_index(self, value: int):
+    def uv_index(self, value: int|None):
         self._uv_index = value
 
     @property
@@ -227,7 +227,7 @@ class _WeatherBlock():
         block_avr_temp = 0
         i = 0
 
-        for i, row_avr_temp in enumerate(self._iter_rows_prop("avr_temp", start=0, end=3)):
+        for row_avr_temp in self._iter_rows_prop("avr_temp", start=0, end=3):
             block_avr_temp += row_avr_temp
             i += 1
 
@@ -238,23 +238,11 @@ class _WeatherBlock():
 
     @property
     def min_pressure(self) -> int|None:
-        min_pressure = 9999
-
-        for pressure in self._iter_rows_prop("pressure"):
-            if pressure < min_pressure:
-                min_pressure = pressure
-
-        return min_pressure
+        return min(self._iter_rows_prop("pressure"))
 
     @property
     def max_pressure(self) -> int|None:
-        max_pressure = -9999
-
-        for pressure in self._iter_rows_prop("pressure"):
-            if pressure > max_pressure:
-                max_pressure = pressure
-
-        return max_pressure
+        return max(self._iter_rows_prop("pressure"))
 
     def __getitem__(self, idx: int) -> _WeatherRow|None:
         return self._rows[idx]

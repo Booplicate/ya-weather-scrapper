@@ -26,7 +26,7 @@ Example of a valid command:
 In case firefox was installed in a non-standard directory, provide the path to it:
 - `python -m yaws cityname --browser "C:/Program Files/Mozilla Firefox/firefox.exe"`
 
-In case the driver was placed outside of the default directory, proved the path to it:
+In case the driver was placed outside of the default directory, provide the path to it:
 - `python -m yaws cityname --driver "C:/Program Files/Selenium Drivers/geckodriver.exe"`
 
 

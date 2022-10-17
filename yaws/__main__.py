@@ -8,6 +8,12 @@ import os
 import sys
 import platform
 
+from selenium.common.exceptions import (
+    SessionNotCreatedException,
+    InvalidArgumentException,
+    WebDriverException
+)
+
 from . import (
     scrapper,
     export,
@@ -42,7 +48,7 @@ def main() -> int:
 
     city_name = args.city
     browser_bin = args.browser
-    driver = args.driver
+    driver_path = args.driver
     dump_path = os.getcwd()#"./"
 
     # We launched successfully, let's init
@@ -79,16 +85,35 @@ def main() -> int:
 
     weather_url = urls.build_url_ya_pogoda(*city.coords)
     print("Loading...")
-    driver = scrapper.FFDriver(browser_bin, driver)# pylint: disable=abstract-class-instantiated
-    with scrapper.SeleniumScrapper(driver) as scrp:
-        print("Fetching weather...")
-        try:
+    driver = scrapper.FFDriver(browser_bin, driver_path)# pylint: disable=abstract-class-instantiated
+
+    try:
+        with scrapper.SeleniumScrapper(driver) as scrp:
+            print("Fetching weather...")
             report = scrp.get_report_from_url(weather_url)
 
-        except Exception as e:
-            print(f"Failed: {e}")
-            sql_backend.add_new_result_entry(city_name, False)
-            return 2
+    except SessionNotCreatedException as e:
+        print("Failed to find the browser in the default location, provide a path to it using the --browser argument")
+        sql_backend.add_new_result_entry(city_name, False)
+        return 2
+
+    except InvalidArgumentException as e:
+        print(f"Browser not found at '{browser_bin}'")
+        sql_backend.add_new_result_entry(city_name, False)
+        return 2
+
+    except WebDriverException as e:
+        if driver_path is None:
+            print("Failed to find the driver in the default location, provide a path to it using the --driver argument")
+        else:
+            print(f"Driver not found at '{driver_path}'")
+        sql_backend.add_new_result_entry(city_name, False)
+        return 3
+
+    except Exception as e:
+        print(f"Failed: {e}")
+        sql_backend.add_new_result_entry(city_name, False)
+        return 4
 
     print("Dumping...")
 
@@ -97,7 +122,7 @@ def main() -> int:
 
     except Exception as e:
         print(f"Failed to dump weather report: {e}")
-        rv = 3
+        rv = 5
 
     else:
         rv = 0
